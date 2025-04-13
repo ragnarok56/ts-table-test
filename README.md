@@ -1,3 +1,8 @@
+# Tanstack table test repo
+
+testing tanstack table with some data models and features we may want to use
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
