@@ -11,9 +11,12 @@ import {
     getGroupedRowModel,
     getExpandedRowModel,
     ColumnDef,
+    CellContext,
     flexRender,
 } from '@tanstack/react-table'
 import { makeConnectionData, Connection } from '../makeData'
+
+const dateCellRenderer = <TData,>(x: CellContext<TData, Date>) => x.getValue().toISOString()
 
 const PersonTable = () => {
     const columns = React.useMemo<ColumnDef<Connection>[]>(
@@ -37,6 +40,22 @@ const PersonTable = () => {
                         header: () => <span>Identifier Type</span>,
                         cell: info => info.getValue(),
                     },
+                    {
+                        header: 'First Seen',
+                        accessorKey: 'firstSeen',
+                        cell: dateCellRenderer,
+                        aggregationFn: 'min',
+                        aggregatedCell: dateCellRenderer,
+                        enableGrouping: false
+                    },
+                    {
+                        header: 'Last Seen',
+                        accessorKey: 'lastSeen',
+                        cell: dateCellRenderer,
+                        aggregationFn: 'max',
+                        aggregatedCell: dateCellRenderer,
+                        enableGrouping: false
+                    }
                 ],
             },
             {
@@ -59,23 +78,23 @@ const PersonTable = () => {
                     },
                 ],
             },
-            {
-                header: 'Dates',
-                columns: [
-                    {
-                        header: 'First',
-                        accessorFn: row => row.dates.sort((a, b) => a.localeCompare(b))[0]
-                    },
-                    {
-                        header: 'Last',
-                        accessorFn: row => row.dates.sort((a, b) => b.localeCompare(a))[0]
-                    },
-                    {
-                        header: 'Total',
-                        accessorFn: row => row.dates.length
-                    }
-                ]
-            },
+            // {
+            //     header: 'Dates',
+            //     columns: [
+            //         {
+            //             header: 'First',
+            //             accessorFn: row => row.dates.sort((a, b) => a.localeCompare(b))[0]
+            //         },
+            //         {
+            //             header: 'Last',
+            //             accessorFn: row => row.dates.sort((a, b) => b.localeCompare(a))[0]
+            //         },
+            //         {
+            //             header: 'Total',
+            //             accessorFn: row => row.dates.length
+            //         }
+            //     ]
+            // },
             {
                 header: 'Connected',
                 columns: [
@@ -95,14 +114,35 @@ const PersonTable = () => {
                         header: () => <span>Identifier Type</span>,
                         cell: info => info.getValue(),
                     },
+                    {
+                        header: 'First Seen',
+                        accessorKey: 'connectedFirstSeen',
+                        cell: dateCellRenderer,
+                        aggregationFn: 'min',
+                        aggregatedCell: dateCellRenderer,
+                        enableGrouping: false
+                    },
+                    {
+                        header: 'Last Seen',
+                        accessorKey: 'connectedLastSeen',
+                        cell: dateCellRenderer,
+                        aggregationFn: 'max',
+                        aggregatedCell: dateCellRenderer,
+                        enableGrouping: false
+                    }
                 ],
             },
         ],
         []
     )
 
-    const [data, setData] = React.useState(() => makeConnectionData(100000))
-    const refreshData = () => setData(() => makeConnectionData(100000))
+    const [data, setData] = React.useState(() => {
+        console.debug('generating fake data...')
+        const d = makeConnectionData(10000)
+        console.debug('completedfake data generation.')
+        return d
+})
+    const refreshData = () => setData(() => makeConnectionData(10000))
 
     const [grouping, setGrouping] = React.useState<GroupingState>([])
 
@@ -276,13 +316,16 @@ const PersonTable = () => {
                 >
                     {'>>'}
                 </button>
-                <span className="flex items-center gap-1">
-                    <div>Page </div>
+                <div>
+                    Total Records: {table.getRowCount().toLocaleString()}
+                </div>
+                <div className="flex items-center gap-1">
+                    <span>Page </span>
                     <strong>
                         {table.getState().pagination.pageIndex + 1} of{' '}
                         {table.getPageCount()}
                     </strong>
-                </span>
+                </div>
                 <span className="flex items-center gap-1">
                     | Go to page:
                     <input
